@@ -1,0 +1,10 @@
+version: "2"
+sql:
+  - name: "db"
+    engine: "sqlite"
+    queries: "query.sql"
+    schema: "schema.sql"
+    gen:
+      go:
+        package: "databaseApi"
+        out: "databaseApi"
