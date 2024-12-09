@@ -1,0 +1,5 @@
+{
+    "host_url": "http://localhost:8080",
+    "client_version": "1.0",
+    "frequency_in_nanoseconds": 1000000000
+}

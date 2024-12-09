@@ -2,9 +2,9 @@ version: "2"
 sql:
   - name: "db"
     engine: "sqlite"
-    queries: "query.sql"
-    schema: "schema.sql"
+    queries: "./SqlFiles/query.sql"
+    schema: "./SqlFiles/schema.sql"
     gen:
       go:
         package: "databaseApi"
-        out: "databaseApi"
+        out: "internal/databaseApi"
