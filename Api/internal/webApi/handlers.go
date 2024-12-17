@@ -5,6 +5,7 @@ import (
 	"collector/pkg/collectorsdk"
 	"collector/pkg/config"
 	"context"
+	_ "github.com/mattn/go-sqlite3"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -28,14 +29,10 @@ type ReadResponse struct {
 }
 
 func (configManager *HandlerConfig) recieveSnapshot(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-	var parsedSnapshot DataSnapshot
-	err := json.NewDecoder(r.Body).Decode(&parsedSnapshot)
+	parsedSnapshots, err := collectorsdk.ParsePostRequest(r, configManager.config.ApiVersion)
 	if err != nil {
-		log.Printf("Error parsing JSON: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(fmt.Sprintf("Error adding metrics %s", err)))
 		return
 	}
 	db, err := sql.Open(configManager.config.DatabaseType, configManager.config.DatabaseName)
@@ -44,13 +41,15 @@ func (configManager *HandlerConfig) recieveSnapshot(w http.ResponseWriter, r *ht
 		return
 	}
 	defer db.Close()
+	for _, snapshot := range parsedSnapshots {
+		err = insertMetrics(db, snapshot)
+		if err != nil {
+			log.Printf("Error inserting metrics: %v", err)
+		}
 
-	err = insertMetrics(db, parsedSnapshot)
-	if err != nil {
-		log.Printf("Error inserting metrics: %v", err)
+		fmt.Println("Metrics inserted successfully!")
 	}
 
-	fmt.Println("Metrics inserted successfully!")
 }
 
 func insertMetrics(db *sql.DB, snapshot DataSnapshot) error {
@@ -116,8 +115,11 @@ func (configManager *HandlerConfig) readSnapshots(w http.ResponseWriter, r *http
 	snapshotfilter := sql.NullInt64{Int64: snapshot_id, Valid: snapshot_id != 0}
 	metric_id, _ := strconv.ParseInt(queryParams.Get("metric_id"), 10, 64)
 	metricfilter := sql.NullInt64{Int64: metric_id, Valid: metric_id != 0}
-
-	filter := databaseApi.GetFilteredMetricsParams{DeviceID: devicefilter, MetricID: metricfilter, SnapshotID: snapshotfilter}
+	limit, _ := strconv.ParseInt(queryParams.Get("limit"), 10, 64)
+	limitNumber := sql.NullInt64{Int64: limit, Valid: limit != 0}
+	offset, _ := strconv.ParseInt(queryParams.Get("page"), 10, 64)
+	offsetNumber := sql.NullInt64{Int64: (offset - 1) * limitNumber.Int64, Valid: (offset-1)*limitNumber.Int64 != 0}
+	filter := databaseApi.GetFilteredMetricsParams{DeviceID: devicefilter, MetricID: metricfilter, SnapshotID: snapshotfilter, Limit: limitNumber, Offset: offsetNumber}
 	response, err := queries.GetFilteredMetrics(ctx, filter)
 	if err != nil {
 		log.Fatal(w, err)

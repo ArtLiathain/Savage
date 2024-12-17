@@ -1,5 +1,10 @@
 {
     "host_url": "http://localhost:8080",
-    "client_version": "1.0",
-    "frequency_in_nanoseconds": 1000000000
+    "client_version": "1.0.0",
+    "frequency_in_nanoseconds": 10000000000,
+    "esp_device_name" : "Timmy",
+    "esp_device_host" : "192.168.135.147:8080",
+    "program_name" : "data_collector"
+    
+
 }

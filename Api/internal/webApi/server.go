@@ -14,9 +14,8 @@ import (
 	"github.com/rs/cors"
 )
 
-
 func InitWebApi(apiCfg config.ApiConfig) {
-	
+
 	db, err := sql.Open(apiCfg.DatabaseType, apiCfg.DatabaseName)
 	if err != nil {
 		log.Fatal(err)
@@ -39,8 +38,8 @@ func InitWebApi(apiCfg config.ApiConfig) {
 	for _, metric := range apiCfg.MetricsLookup {
 		queries.InsertMetricLookup(ctx, metric)
 	}
-	
-	fmt.Println("Database and tables created successfully!")
+
+	log.Println("Database and tables created successfully")
 
 	handlers := &HandlerConfig{config: apiCfg}
 	http.HandleFunc("/read", handlers.readSnapshots)
@@ -52,6 +51,6 @@ func InitWebApi(apiCfg config.ApiConfig) {
 		AllowedHeaders: []string{"Content-Type", "Authorization", "X-Requested-With"},
 	})
 	handler := c.Handler(http.DefaultServeMux)
-
+	log.Printf("Listening on %s:%d", apiCfg.Host, apiCfg.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", apiCfg.Port), handler))
 }

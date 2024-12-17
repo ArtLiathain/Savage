@@ -1,8 +1,9 @@
 package main
 
 import (
-	"collector/pkg/config"
 	"collector/internal/webApi"
+	"collector/pkg/config"
+	
 )
 
 func main() {

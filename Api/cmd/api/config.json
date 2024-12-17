@@ -3,6 +3,9 @@
     "port": 8080,
     "database_name": "metrics.db",
     "database_type": "sqlite3",
-    "metrics_lookup" : ["ram_total", "ram_usage_percent", "ram_usage"],
-    "schema_file" : "./SqlFiles/schema.sql"
+    "metrics_lookup" : ["ram_total", "ram_usage_percent", "ram_usage", "hypersonic_distance"],
+    "schema_file" : "./SqlFiles/schema.sql",
+    "api_version" : "1.0.0",
+    "program_name" : "api"
+
 }

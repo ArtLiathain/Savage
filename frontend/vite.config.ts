@@ -8,5 +8,6 @@ export default defineConfig({
     alias: {
       '@types': '/types'  // Add an alias for the types directory
     }
-  }
+  },
+  
 })

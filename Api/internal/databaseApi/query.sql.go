@@ -146,12 +146,20 @@ WHERE
   (metrics.device_id = ?1 OR ?1 IS NULL)
   AND (metrics.metric_id = ?2 OR ?2 IS NULL)
   AND (metrics.snapshot_id = ?3 OR ?3 IS NULL)
+ORDER BY 
+  snapshot_time.snapshot_id DESC
+LIMIT 
+  ?5  
+OFFSET 
+  ?4
 `
 
 type GetFilteredMetricsParams struct {
 	DeviceID   sql.NullInt64
 	MetricID   sql.NullInt64
 	SnapshotID sql.NullInt64
+	Offset     sql.NullInt64
+	Limit      sql.NullInt64
 }
 
 type GetFilteredMetricsRow struct {
@@ -166,7 +174,13 @@ type GetFilteredMetricsRow struct {
 }
 
 func (q *Queries) GetFilteredMetrics(ctx context.Context, arg GetFilteredMetricsParams) ([]GetFilteredMetricsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFilteredMetrics, arg.DeviceID, arg.MetricID, arg.SnapshotID)
+	rows, err := q.db.QueryContext(ctx, getFilteredMetrics,
+		arg.DeviceID,
+		arg.MetricID,
+		arg.SnapshotID,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
