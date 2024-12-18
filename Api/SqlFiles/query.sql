@@ -17,7 +17,7 @@ VALUES (?, ?, ?, ?);
 
 -- name: GetAllMetricLookup :many
 SELECT 
-    name
+    *
 FROM 
     metric_lookup;
 -- name: GetOneMetricLookup :one
@@ -52,6 +52,12 @@ FROM
     devices
 WHERE
     devices.device_guid == ?;
+
+-- name: GetAllDevices :many
+SELECT
+    *
+FROM
+    devices;
 
 -- name: GetMetricsWithDetails :many
 SELECT 

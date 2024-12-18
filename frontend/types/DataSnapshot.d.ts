@@ -17,3 +17,15 @@ export interface GetFilter {
   device_id: number | null;
   setData: Dispatch<SetStateAction<MetricData | undefined>>;
 }
+
+
+export interface MetricType {
+  MetricID: number;
+  Name: string;
+}
+
+export interface Device {
+  DeviceName : string;
+  DeviceGuid : string;
+  DeviceID : number;
+}

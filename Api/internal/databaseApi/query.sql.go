@@ -11,26 +11,56 @@ import (
 	"time"
 )
 
+const getAllDevices = `-- name: GetAllDevices :many
+SELECT
+    device_id, device_guid, device_name
+FROM
+    devices
+`
+
+func (q *Queries) GetAllDevices(ctx context.Context) ([]Device, error) {
+	rows, err := q.db.QueryContext(ctx, getAllDevices)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Device
+	for rows.Next() {
+		var i Device
+		if err := rows.Scan(&i.DeviceID, &i.DeviceGuid, &i.DeviceName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAllMetricLookup = `-- name: GetAllMetricLookup :many
 SELECT 
-    name
+    metric_id, name
 FROM 
     metric_lookup
 `
 
-func (q *Queries) GetAllMetricLookup(ctx context.Context) ([]string, error) {
+func (q *Queries) GetAllMetricLookup(ctx context.Context) ([]MetricLookup, error) {
 	rows, err := q.db.QueryContext(ctx, getAllMetricLookup)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []string
+	var items []MetricLookup
 	for rows.Next() {
-		var name string
-		if err := rows.Scan(&name); err != nil {
+		var i MetricLookup
+		if err := rows.Scan(&i.MetricID, &i.Name); err != nil {
 			return nil, err
 		}
-		items = append(items, name)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

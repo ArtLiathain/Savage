@@ -1,0 +1,58 @@
+menu "Project Configuration"
+
+    config LED_PIN_GREEN
+        int "LED Pin Green"
+        default 5
+        help
+            GPIO pin number for the green LED.
+    
+    config LED_PIN_YELLOW
+        int "LED Pin Yellow"
+        default 2
+        help
+            GPIO pin number for the yellow LED.
+    
+    config BUFFER_SIZE
+        int "Buffer Size"
+        default 30
+        help
+            Size of the buffer used in the application.
+    
+    config TIMER_LENGTH
+        int "Timer Length"
+        default 1
+        help
+            Timer length in seconds.
+    
+    config PORT
+        int "Server Port"
+        default 8080
+        help
+            Port number for the TCP server.
+    
+    config WIFI_SSID
+        string "WiFi SSID"
+        default "Hi"
+        help
+            SSID of the Wi-Fi network.
+    
+    config WIFI_PASS
+        string "WiFi Password"
+        default "12345678"
+        help
+            Password for the Wi-Fi network.
+
+    config LED_BLINK_SPEED
+        int "LED Blink Speed"
+        default 10
+        help
+            Blink speed for the LED in milliseconds.
+
+    config LED_SHADE_BITS
+        int "LED bits for shades"
+        default 6
+        help
+            Amount of bits for led shades.
+    
+    endmenu
+    

@@ -21,6 +21,7 @@ type ApiConfig struct {
 	SchemaPath    string   `koanf:"schema_file" validate:"required"`
 	ApiVersion    string   `koanf:"api_version" validate:"required"`
 	ProgramName   string   `koanf:"program_name" validate:"required"`
+	DebugLevel    int      `koanf:"log_level" validate:"required,min=1,max=5"`
 }
 
 // AppConfig represents the general application configuration.
@@ -31,6 +32,7 @@ type ClientConfig struct {
 	ESPDeviceName          string `koanf:"esp_device_name" validate:"required"`
 	ESPDeviceHost          string `koanf:"esp_device_host" validate:"required"`
 	ProgramName            string `koanf:"program_name" validate:"required"`
+	DebugLevel             int    `koanf:"log_level" validate:"required,min=1,max=5"`
 }
 
 // ConfigurationManager handles loading configurations.

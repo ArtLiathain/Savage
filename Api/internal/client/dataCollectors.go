@@ -3,18 +3,14 @@ package client
 import (
 	"collector/pkg/collectorsdk"
 	"collector/pkg/config"
-	"encoding/binary"
 	"errors"
 	"fmt"
-	"net"
-	"time"
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/sirupsen/logrus"
-
+	"net"
+	"time"
 )
-
-
 
 type DataSnapshot = collectorsdk.DataSnapshot
 
@@ -22,7 +18,7 @@ type ESPPayload struct {
 	Count             uint8
 	BufferData        []uint8
 	SamplingFrequency uint8
-	Guid              int64
+	Guid              string
 }
 type ESPProtocol int
 
@@ -37,7 +33,6 @@ var protocolToMetric = map[ESPProtocol]string{
 	HyperSonic: "hypersonic_distance",
 	Led:        "led_status",
 }
-
 
 // getOSSnapshot collects and logs OS metrics
 func getOSSnapshot(channel chan<- DataSnapshot) {
@@ -113,7 +108,7 @@ func getEspSnapshot(clientCfg config.ClientConfig, protocol ESPProtocol, channel
 	for index, value := range decodedData.BufferData {
 		metrics[protocolToMetric[protocol]] = float64(value)
 
-		channel <- createStandardSnapshot(string(decodedData.Guid),
+		channel <- createStandardSnapshot(decodedData.Guid,
 			clientCfg.ESPDeviceName, metrics,
 			(len(decodedData.BufferData)-index)*int(decodedData.SamplingFrequency))
 	}
@@ -186,8 +181,6 @@ func decodeESPDataPayload(payload []byte) (ESPPayload, error) {
 	if len(payload) < index+8 {
 		return parsed_payload, fmt.Errorf("payload too short for offset_minutes")
 	}
-	parsed_payload.Guid = int64(binary.LittleEndian.Uint32(payload[index : index+8]))
-
+	parsed_payload.Guid = net.HardwareAddr(payload[index : index+6]).String()
 	return parsed_payload, nil
 }
-

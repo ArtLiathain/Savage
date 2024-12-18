@@ -1,0 +1,7 @@
+# Top-level Kconfig file
+menu "Project Configuration"
+
+    source "main/Kconfig"
+    
+endmenu
+    
