@@ -5,11 +5,14 @@ import (
 	"collector/pkg/config"
 	"errors"
 	"fmt"
+	"net"
+	"time"
+
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/sirupsen/logrus"
-	"net"
-	"time"
 )
 
 type DataSnapshot = collectorsdk.DataSnapshot
@@ -58,6 +61,25 @@ func getOSSnapshot(channel chan<- DataSnapshot) {
 		return
 	}
 
+	cpuUsage, err := cpu.Percent(0, false)  // Get CPU usage percentage
+	if err != nil {
+		logger.WithFields(logrus.Fields{"error": err.Error()}).Error("Error fetching CPU stats")
+		close(channel)
+		return
+	}
+	metrics["cpu_usage_percent"] = cpuUsage[0] // We get a slice with one element, so take the first
+
+	// Fetch disk usage stats
+	diskStats, err := disk.Usage("/")
+	if err != nil {
+		logger.WithFields(logrus.Fields{"error": err.Error()}).Error("Error fetching disk stats")
+		close(channel)
+		return
+	}
+	metrics["disk_total"] = float64(diskStats.Total / 1024 / 1024 / 1024) // Total disk space in GB
+	metrics["disk_used"] = float64(diskStats.Used / 1024 / 1024 / 1024)   // Used disk space in GB
+	metrics["disk_usage_percent"] = float64(diskStats.UsedPercent) 
+
 	logger.WithFields(logrus.Fields{"host_id": info.HostID, "hostname": info.Hostname}).Info("Sending OS snapshot")
 
 	channel <- createStandardSnapshot(info.HostID, info.Hostname, metrics, 0)
@@ -70,7 +92,7 @@ func createStandardSnapshot(device_guid string, device_name string, metrics map[
 	_, offset := nowTime.Zone()
 
 	return DataSnapshot{
-		Timestamp:       nowTime.UTC(),
+		Timestamp:       nowTime.UTC().Add(-1 * time.Duration(recording_offset) * time.Second),
 		TimezoneMinutes: (offset % 3600) / 60,
 		DeviceId:        device_guid,
 		DeviceName:      device_name,

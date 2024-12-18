@@ -1,11 +1,21 @@
 {
-    "host": "localhost",
-    "port": 8080,
-    "database_name": "metrics.db",
-    "database_type": "sqlite3",
-    "metrics_lookup" : ["ram_total", "ram_usage_percent", "ram_usage", "hypersonic_distance", "led_status"],
-    "schema_file" : "./SqlFiles/schema.sql",
-    "api_version" : "1.0.0",
-    "program_name" : "api",
-    "log_level" : 5
+  "host": "localhost",
+  "port": 8080,
+  "database_name": "metrics.db",
+  "database_type": "sqlite3",
+  "metrics_lookup": [
+    "ram_total",
+    "ram_usage_percent",
+    "ram_usage",
+    "hypersonic_distance",
+    "led_status",
+    "disk_total",
+    "disk_used",
+    "disk_usage_percent",
+    "cpu_usage_percent"
+  ],
+  "schema_file": "./SqlFiles/schema.sql",
+  "api_version": "1.0.0",
+  "program_name": "api",
+  "log_level": 4
 }

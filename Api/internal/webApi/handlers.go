@@ -156,7 +156,10 @@ func (configManager *HandlerConfig) readSnapshots(w http.ResponseWriter, r *http
 	limit, _ := strconv.ParseInt(queryParams.Get("limit"), 10, 64)
 	limitNumber := sql.NullInt64{Int64: limit, Valid: limit != 0}
 	offset, _ := strconv.ParseInt(queryParams.Get("page"), 10, 64)
-	offsetNumber := sql.NullInt64{Int64: (offset - 1) * limitNumber.Int64, Valid: (offset-1)*limitNumber.Int64 != 0}
+	if offset < 2 {
+		offset = 1
+	}
+	offsetNumber := sql.NullInt64{Int64: (offset - 1) * limitNumber.Int64, Valid: true}
 
 	logger.WithFields(logrus.Fields{
 		"device_id":   devicefilter,
@@ -192,7 +195,10 @@ func (configManager *HandlerConfig) readSnapshots(w http.ResponseWriter, r *http
 }
 
 func (configManager *HandlerConfig) resetESP(w http.ResponseWriter, _ *http.Request) {
+	logger := newLogger()
 	low_power = true
+	logger.Info("Low power requst recieved")
+
 	w.WriteHeader(http.StatusCreated)
 }
 
