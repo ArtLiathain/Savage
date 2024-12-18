@@ -6,11 +6,11 @@ import {
 } from "../types/DataSnapshot";
 import Card from "./Components/Card";
 import { useEffect, useState } from "react";
-import LineChart from "./Components/Linechart";
 import MetricDataTable from "./Components/MetricTable";
 import GaugeDisplay from "./Components/Gauge";
+import LineGraphBox from "./Components/LineGraphBox";
 
-const host = "http://localhost:8080";
+export const host = "http://209.97.179.7:8080";
 
 export const filteredGetRequest = async ({
   metric_id,
@@ -19,11 +19,13 @@ export const filteredGetRequest = async ({
   device_id,
   setData,
 }: GetFilter) => {
-  let url = `${host}/read?metric_id=${metric_id}&limit=${limit}&page_number=${page_number}&device_id=${device_id}`;
+  let url = `${host}/read?metric_id=${metric_id}&limit=${limit}&page=${page_number}&device_id=${device_id}`;
+  console.log(url)
   try {
     let snapshots = await makeGetRequest(url);
-    setData(snapshots.reverse());
-  } catch {
+    setData(snapshots);
+  } catch (err) {
+    console.log(err);
     console.log("Failed getting snapshots");
   }
 };
@@ -32,7 +34,7 @@ export const makeGetRequest = async (url: string) => {
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error("Failed to fetch data");
+      throw new Error("Failed to fetch at all");
     }
     const data = await response.json();
     return data; // Store the reversed data
@@ -42,11 +44,8 @@ export const makeGetRequest = async (url: string) => {
 };
 
 function App() {
-  const [metrics, setMetrics] = useState<MetricData[] | undefined>(undefined);
-  const [devices, setDevices] = useState<Device[] | undefined>(undefined);
-  const [metricTypes, setMetricTypes] = useState<MetricType[] | undefined>(
-    undefined
-  );
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [metricTypes, setMetricTypes] = useState<MetricType[]>([]);
 
   // This function performs a GET request with filters to fetch metrics data
 
@@ -67,27 +66,30 @@ function App() {
     };
     setconstdata();
   }, []);
+
   return (
-    <div className="bg-green-500 h-screen grid grid-cols-2 gap-4 p-10">
-      {/* Ensure grid items respect container height */}
-      <Card>
-        {metrics && (
-          <LineChart
-            data={metrics}
-            metricName="ram_usage_percent"
-            chartTitle="RAM Usage Over Time"
-            yAxisLabel="RAM Usage (%)"
-            numberOfDataPoints={50}
-          />
-        )}
-      </Card>
-      <Card>{metrics && <MetricDataTable data={metrics} />}</Card>
-      <Card>
-        <GaugeDisplay />
-      </Card>
-      <Card>{metrics && <MetricDataTable data={metrics} />}</Card>
+    <div className="bg-green-500 min-h-screen p-10 overflow-auto grid grid-rows-[auto,1fr,auto] gap-4">
+      {/* Line Graph Section */}
+      <div className="row-span-1 col-span-1 w-full">
+        <Card>
+          <LineGraphBox devices={devices} metrictypes={metricTypes} />
+        </Card>
+      </div>
+
+      {/* Table Section */}
+      <div className="row-span-1 col-span-1 w-full">
+        <Card>
+          <MetricDataTable devices={devices} metricTypes={metricTypes} />
+        </Card>
+      </div>
+
+      {/* Gauge Section */}
+      <div className="row-span-1 col-span-1 w-full">
+        <Card>
+          <GaugeDisplay devices={devices} metricTypes={metricTypes} />
+        </Card>
+      </div>
     </div>
   );
 }
-
 export default App;

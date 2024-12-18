@@ -35,16 +35,14 @@ const LineChart = ({
     metricName,
     chartTitle,
     yAxisLabel,
-    numberOfDataPoints = 40, // Default to the last 40 data points
     datasets,
 }: LineChartProps) => {
     if (!data) {
         return <></>;
     }
 
-    const limitedData = data.slice(Math.max(data.length - numberOfDataPoints, 0));
 
-    const labels = limitedData.map((SS) => {
+    const labels = data.map((SS) => {
         // Create a Date object from the timestamp string
         const date = new Date(SS.ClientUtcTime);
         // Format it to 24-hour time (HH:mm)
@@ -60,7 +58,7 @@ const LineChart = ({
     // If no datasets are provided, create one dataset for the given metric
     const chartDatasets = datasets || [{
         label: metricName,
-        data: limitedData.map((metric) => metric.Value),
+        data: data.map((metric) => metric.Value),
         borderColor: '#4CAF50', // Change color if needed
         tension: 0.4, // Adjust line tension for smoothness
         fill: false, // Make the line graph unfilled
